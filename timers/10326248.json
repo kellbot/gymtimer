@@ -1,0 +1,106 @@
+{
+    "type": 3,
+    "name": "3 Rounds of 5 Exercises 30s Each",
+    "identifier": "e03d6eed-b5f4-4693-9869-44001accb16e",
+    "numberOfSets": 3,
+    "soundScheme": 5,
+    "vibration": true,
+    "intervals": [
+        {
+            "identifier": "bbbb8ade-7a69-4ae6-af8b-13db31424a26",
+            "name": "Front Raise",
+            "duration": 30,
+            "color": 2,
+            "vibration": true,
+            "split": false,
+            "halfwayAlert": false,
+            "count": ""
+        },
+        {
+            "identifier": "6d08170f-9ade-4c2c-bab2-347d4a4aac75",
+            "name": "Side Raise",
+            "duration": 30,
+            "color": 1,
+            "vibration": true,
+            "split": false,
+            "halfwayAlert": false,
+            "count": ""
+        },
+        {
+            "identifier": "83da6e9b-cdf7-4ee1-84e9-9056bb1cf99d",
+            "name": "Arnold Press",
+            "duration": 30,
+            "color": 3,
+            "vibration": true,
+            "split": false,
+            "halfwayAlert": false,
+            "count": ""
+        },
+        {
+            "identifier": "720ad1b6-5b3e-4d2a-927b-cd66ac7de81a",
+            "name": "Biceps Curl",
+            "duration": 30,
+            "color": 6,
+            "vibration": true,
+            "split": false,
+            "halfwayAlert": false,
+            "count": ""
+        },
+        {
+            "identifier": "3a0b0eab-0eb0-4d5d-876b-cb8be5adb683",
+            "name": "Triceps Kickback",
+            "duration": 30,
+            "color": 4,
+            "vibration": true,
+            "split": false,
+            "halfwayAlert": false,
+            "count": ""
+        }
+    ],
+    "intervalRest": {
+        "identifier": "476f671c-6570-4946-937e-aa17df116a69",
+        "name": "Rest",
+        "duration": 30,
+        "color": 0,
+        "vibration": true,
+        "split": false,
+        "halfwayAlert": false,
+        "rest": true,
+        "count": ""
+    },
+    "setRest": {
+        "identifier": "46e7609c-ecc1-46fd-8fcc-639eaa5e2575",
+        "name": "Rest",
+        "duration": 0,
+        "color": 0,
+        "vibration": true,
+        "split": false,
+        "halfwayAlert": false,
+        "rest": true,
+        "count": ""
+    },
+    "warmup": {
+        "identifier": "fe341b35-e6de-499c-8ac5-7996e9a13615",
+        "name": "Warm Up",
+        "duration": 60,
+        "color": 0,
+        "vibration": true,
+        "split": false,
+        "halfwayAlert": false,
+        "rest": true,
+        "count": ""
+    },
+    "cooldown": {
+        "identifier": "49b2330d-3a5c-4aef-aac0-70cd0469c572",
+        "name": "Cool Down",
+        "duration": 0,
+        "color": 0,
+        "vibration": true,
+        "split": false,
+        "halfwayAlert": false,
+        "rest": true,
+        "count": ""
+    },
+    "group": false,
+    "random": false
+}

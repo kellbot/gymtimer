@@ -1,3 +1,5 @@
+const intervalComplete = new Event("intervalComplete");
+
 class Sequence {
     
 
@@ -9,13 +11,20 @@ class Sequence {
         } else {
             throw new Error('Initializd empty sequence');
         }
+        this.addEventListener(
+            "intervalComplete",
+            (e) => {
+              /* … */
+            },
+            false
+          );
     }
 
     timer() {
-        console.log(this.currentInterval);
         this.currentInterval.diff = this.currentInterval.duration - (((Date.now() - this.currentInterval.start) / 1000) | 0);
 
         if (this.currentInterval.diff <= 0) {
+            this.dispatchEvent(intervalComplete);
             clearInterval(this.jsInterval);
         //   this.endInterval();
         //   if (round < totalRounds) {
@@ -36,7 +45,7 @@ class Sequence {
         return this.intervals[0];
     }
 
-    getRemainig() {
+    getRemaining() {
         return this.diff;
     }
 

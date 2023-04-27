@@ -7,7 +7,7 @@
     "intervals": [
         {
             "name": "Exercise 1",
-            "duration": 45,
+            "duration": 15,
             "color": 2,
             "vibration": true,
             "split": false,
@@ -16,7 +16,7 @@
         },
         {
             "name": "Exercise 2",
-            "duration": 45,
+            "duration": 15,
             "color": 2,
             "vibration": true,
             "split": false,
@@ -25,7 +25,7 @@
         },
         {
             "name": "Exercise 3",
-            "duration": 45,
+            "duration": 15,
             "color": 2,
             "vibration": true,
             "split": false,
@@ -34,7 +34,7 @@
         },
         {
             "name": "Exercise 4",
-            "duration": 45,
+            "duration": 15,
             "color": 2,
             "vibration": true,
             "split": false,
@@ -43,7 +43,7 @@
         },
         {
             "name": "Exercise 5",
-            "duration": 45,
+            "duration": 15,
             "color": 2,
             "vibration": true,
             "split": false,
@@ -52,7 +52,7 @@
         },
         {
             "name": "Exercise 6",
-            "duration": 45,
+            "duration": 15,
             "color": 2,
             "vibration": true,
             "split": false,
@@ -61,7 +61,7 @@
         },
         {
             "name": "Exercise 7",
-            "duration": 45,
+            "duration": 15,
             "color": 2,
             "vibration": true,
             "split": false,
@@ -70,7 +70,7 @@
         },
         {
             "name": "Exercise 8",
-            "duration": 45,
+            "duration": 15,
             "color": 2,
             "vibration": true,
             "split": false,
@@ -92,7 +92,7 @@
     "setRest": {
         "identifier": "46e7609c-ecc1-46fd-8fcc-639eaa5e2575",
         "name": "Rest",
-        "duration": 0,
+        "duration": 30,
         "color": 0,
         "vibration": true,
         "split": false,

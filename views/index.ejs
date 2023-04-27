@@ -14,7 +14,7 @@
     <div class="display">
       <div class="time">00:00</div>
       <div class="round">Round <span class="currentRound">0</span> of <span class="totalRounds">0</span></div>
-      <div class="title"></div>
+      <div><span class="currentInterval">1</span> / <span class="totalIntervals"></span> : <span class="title"></span></div>
     </div>
   </div>
   <%- (typeof controls !='undefined' && controls) ? include('./partials/presets') : '' %>
@@ -35,21 +35,24 @@
       const t =  display.querySelector('.time');
       const roundsTotal = display.querySelector('.totalRounds');
       const currentRound = display.querySelector('.currentRound');
+      const intervalsTotal = display.querySelector('.totalIntervals');
+      const currentInterval = display.querySelector('.currentInterval');
 
       function setupClock(sequence) {
-        console.log(sequence);
         t.textContent = formatTime(sequence.currentInterval.duration);
         t.dataset.duration = sequence.currentInterval.duration;
         display.querySelector('.title').textContent = sequence.currentInterval.name;
+        currentRound.textContent = sequence.currentSet;
         roundsTotal.textContent = sequence.numberOfSets;
+        intervalsTotal.textContent = sequence.intervals.length;
       }
 
-      function setupTimer(msg) {
+      function setupTimer(interval) {
         const t =  display.querySelector('.time');
-        t.textContent = formatTime(msg.interval.duration);
-        t.dataset.duration = msg.interval.duration;
-        display.querySelector('.title').textContent = msg.interval.name;
-        if (msg.interval.index) currentRound.textContent = msg.interval.index + 1;
+        t.textContent = formatTime(interval.duration);
+        t.dataset.duration = interval.duration;
+        display.querySelector('.title').textContent = interval.name;
+        if (interval.index) currentInterval.textContent = interval.index + 1;
 
         if (autostart)  {
           jsInterval = startTimer();
@@ -64,15 +67,13 @@
 
         display.classList.add('active');
         let duration = t.dataset.duration;
-        // let totalRounds = parseInt(args.rounds);
-        // let round = 1;
+
         var start = Date.now(),
           diff,
           minutes,
           seconds;
         function timer() {
-          // get the number of seconds that have elapsed since 
-          // startTimer() was called
+
           diff = duration - (((Date.now() - start) / 1000) | 0);
 
           display.querySelector('.time').textContent = formatTime(diff);
@@ -80,9 +81,6 @@
 
           if (diff <= 0) {
             audio.play();
-
-
-              display.classList.remove('active')
               clearInterval(jsInterval);
             // }
           }
@@ -126,17 +124,23 @@
         stopTimer(jsInterval);
       });
 
-      socket.on('start timer', function (msg) {
+      socket.on('start timer', function (interval) {
+        
         autostart = true;
         jsInterval = startTimer();
       });
 
-      socket.on('setup interval', function (msg) {
-        setupTimer(msg);
+      socket.on('setup interval', function (interval) {
+        if (interval.color) display.classList.add(`color-${interval.color}`);
+        setupTimer(interval);
       });
 
       socket.on('setup clock', function (sequence) {
         setupClock(sequence);
+      });
+
+      socket.on('timer complete', function (e) {
+        display.classList.remove('active');
       });
 
       socket.emit('fetch sequence', 'cirque');

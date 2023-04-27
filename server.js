@@ -60,10 +60,14 @@ io.on('connection', (socket) => {
         if (!activeTimer) throw new Error(`Timer ${msg} not found`);
         activeTimer.start();
         io.emit('start timer');
+        
         activeTimer.on('interval start', (interval) => {
-          console.log(interval);
-          io.emit('setup interval', {interval: interval});
+          io.emit('setup interval', interval);
         });
+
+        activeTimer.on('timer complete', (msg) => {
+          io.emit('timer complete');
+        })
     });
 
 

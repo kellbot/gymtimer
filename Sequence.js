@@ -10,7 +10,7 @@ class Sequence extends EventEmitter {
             Object.assign(this, saveData);
             this.id = fileId;
             this.currentInterval = this.firstInterval();
-            this.currentSet = 0;
+            this.currentSet = 1;
             this.indexIntervals();
             this.resting = false;
 
@@ -42,19 +42,28 @@ class Sequence extends EventEmitter {
             // If there is another interval
             if (this.nextInterval()) {
                 // Rest before next interval
-                this.resting = {start: Date.now(), duration: this.intervalRest.duration};
+                this.resting = this.intervalRest;
+                this.resting.start = Date.now() + 1000;
                 this.rest();
-                this.emit('interval start', {duration: this.resting.duration, name: 'Rest'});
+                this.emit('interval start', this.resting);
                 
                 this.jsInterval = setInterval(this.rest.bind(this), 1000);
 
             // if not we look for the next round    
-            } else {
-                if (this.currentSet < this.numberOfSets) {
+            } else if (this.currentSet < this.numberOfSets) {
                     this.currentSet++;
                     this.currentInterval = this.firstInterval();
-                    this.start();
-                }
+                    this.resting = this.setRest;
+                    this.resting.start = Date.now() + 1000;
+                    this.rest();
+                    this.emit('interval start', this.resting);
+                
+                    this.jsInterval = setInterval(this.rest.bind(this), 1000);
+                
+            } else {
+                //It's over!
+                this.emit('timer complete');
+                console.log('timer complete');
             }
 
         }

@@ -13,7 +13,7 @@
   <div id="clock">
     <div class="display">
       <div class="time">00:00</div>
-      <div class="round"></div>
+      <div class="round">Round <span class="currentRound">0</span> of <span class="totalRounds">0</span></div>
       <div class="title"></div>
     </div>
   </div>
@@ -25,28 +25,44 @@
       var messages = document.getElementById('messages');
       var presets = document.getElementById('presets');
       var input = document.getElementById('input');
-      let interval;
       let sequenceId;
+      let jsInterval;
+      let autostart = false;
       
       var audio = new Audio('longbeep.mp3');
       
-      var display = document.querySelector('#clock .display');
+      const display = document.querySelector('#clock .display');
+      const t =  display.querySelector('.time');
+      const roundsTotal = display.querySelector('.totalRounds');
+      const currentRound = display.querySelector('.currentRound');
 
-      function setupTimer(seq) {
-        const t =  display.querySelector('.time');
-        t.textContent = formatTime(seq.intervals[0].duration);
-        t.dataset.duration = seq.intervals[0].duration;
-        display.querySelector('.title').textContent = seq.intervals[0].name;
+      function setupClock(sequence) {
+        console.log(sequence);
+        t.textContent = formatTime(sequence.currentInterval.duration);
+        t.dataset.duration = sequence.currentInterval.duration;
+        display.querySelector('.title').textContent = sequence.currentInterval.name;
+        roundsTotal.textContent = sequence.numberOfSets;
       }
 
-      function stopTimer(interval) {
-        clearInterval(interval);
+      function setupTimer(msg) {
+        const t =  display.querySelector('.time');
+        t.textContent = formatTime(msg.interval.duration);
+        t.dataset.duration = msg.interval.duration;
+        display.querySelector('.title').textContent = msg.interval.name;
+        if (msg.interval.index) currentRound.textContent = msg.interval.index + 1;
+
+        if (autostart)  {
+          jsInterval = startTimer();
+        }
+      }
+
+      function stopTimer(jsInterval) {
+        clearInterval(jsInterval);
       }
 
       function startTimer() {
 
         display.classList.add('active');
-        const t =  display.querySelector('.time');
         let duration = t.dataset.duration;
         // let totalRounds = parseInt(args.rounds);
         // let round = 1;
@@ -64,24 +80,18 @@
 
           if (diff <= 0) {
             audio.play();
-            // if (round < totalRounds) {
-            //   round++;
-            //   start = Date.now() + 1000;
-              
-            //   clearInterval(interval);
-            //   interval = setInterval(timer, 1000);
-            // } else {
+
 
               display.classList.remove('active')
-              clearInterval(interval);
+              clearInterval(jsInterval);
             // }
           }
         };
 
         // we don't want to wait a full second before the timer starts
         timer();
-        let interval = setInterval(timer, 1000);
-        return interval;
+        jsInterval = setInterval(timer, 1000);
+        return jsInterval;
 
       }
 
@@ -100,34 +110,36 @@
         e.preventDefault();
         if (e.target.dataset.duration) {
           roundInput = document.querySelector('input[name="rounds"]');
-        //  socket.emit('start timer', { duration: e.target.dataset.duration, rounds: roundInput.value });
+  //        socket.emit('create timer', { duration: e.target.dataset.duration, rounds: roundInput.value });
         }
       });
 
       document.getElementById('startstop').addEventListener('click', function (e) {
         e.preventDefault();
-        if (!sequenceId) throw new Error(sequenceId);
         if (e.target.dataset.action) {
-          socket.emit(`${e.target.dataset.action} timer`, sequenceId);
+          socket.emit(`${e.target.dataset.action} timer`);
         }
       })
 
 
       socket.on('stop timer', function (msg) {
-        stopTimer(interval);
+        stopTimer(jsInterval);
       });
 
       socket.on('start timer', function (msg) {
-        interval = startTimer();
+        autostart = true;
+        jsInterval = startTimer();
       });
 
-      socket.on('setup timer', function (msg) {
-        console.log(msg);
-        sequenceId = msg.id;
+      socket.on('setup interval', function (msg) {
         setupTimer(msg);
       });
 
-      socket.emit('fetch timer', 10326248);
+      socket.on('setup clock', function (sequence) {
+        setupClock(sequence);
+      });
+
+      socket.emit('fetch sequence', 'cirque');
     </script>
 </body>
 

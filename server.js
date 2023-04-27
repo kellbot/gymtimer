@@ -5,18 +5,34 @@ const server = http.createServer(app);
 const { Server } = require("socket.io");
 const io = new Server(server);
 const fs = require('fs');
+const path = require('path');
 const { Sequence } = require('./Sequence');
 
 let timers = [];
+let activeTimer = "bugs";
 
-fs.readFile('./timers/10326248.json','utf8', (error, data) => {
-  if(error){
-     console.log(error);
-     return;
+const directoryPath = './timers/';
+fs.readdir(directoryPath, (err, files) => {
+  if (err) {
+    console.error('Error reading directory: ', err);
+    return;
   }
-  timers[10326248] = new Sequence(JSON.parse(data), 10326248);
 
+  files.forEach( (file) => {
+    const filePath = path.join(directoryPath, file);
+    fs.readFile(filePath, 'utf8', (err, data) => {
+      if (err) {
+        console.error('Error reading file:', err);
+        return;
+      }
+      const ext = path.extname(file);
+      const sinext = path.basename(file, ext);
+      timers[sinext] = new Sequence(JSON.parse(data), file);
+
+    })
+  })
 })
+
 
 
 
@@ -39,23 +55,31 @@ io.on('connection', (socket) => {
 
 io.on('connection', (socket) => {
     socket.on('start timer', (msg) => {
-        console.log(msg);
+
         io.emit('stop timer', {});
-        const tm = timers[msg];
-        if (!tm) throw new Error(`Timer ${msg} not found`);
-        tm.start();
+        if (!activeTimer) throw new Error(`Timer ${msg} not found`);
+        activeTimer.start();
         io.emit('start timer');
+        activeTimer.on('interval start', (interval) => {
+          console.log(interval);
+          io.emit('setup interval', {interval: interval});
+        });
     });
-    socket.on('fetch timer', (timerId) => {
-      const tm = timers[timerId];
-      if (!tm) {
+
+
+    socket.on('fetch sequence', (timerId) => {
+      activeTimer = timers[timerId];
+      if (!activeTimer) {
         console.log(`Timer ${timerId} not found`);
         return;
       }
-      io.emit('setup timer', tm);
+
+      io.emit('setup clock', activeTimer);
     
     });
 });
+
+
 
 server.listen(3000, () => {
   console.log('listening on *:3000');

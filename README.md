@@ -6,4 +6,4 @@ Synchronized timer across multiple devices
 
 ## Colors
 
-0: 	`#323232`
+- ![#323232](https://placehold.co/15x15/323232/323232.png} `#323232`

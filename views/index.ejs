@@ -16,8 +16,7 @@
       <div class="progressBar"></div>
       <div class="round">Round <span class="currentRound">0</span> of <span class="totalRounds">0</span></div>
 
-      <div><span class="currentInterval">1</span> / <span class="totalIntervals"></span> : <span class="title"></span>
-      </div>
+      <div class="title"> </div>
     </div>
   </div>
   <%- (typeof controls !='undefined' && controls) ? include('./partials/presets') : '' %>
@@ -31,6 +30,7 @@
       var input = document.getElementById('input');
       let sequenceId;
       let jsInterval;
+      let remaining;
       let autostart = false;
 
       var audio = new Audio('longbeep.mp3');
@@ -39,7 +39,6 @@
       const t = display.querySelector('.time');
       const roundsTotal = display.querySelector('.totalRounds');
       const currentRound = display.querySelector('.currentRound');
-      const intervalsTotal = display.querySelector('.totalIntervals');
       const currentInterval = display.querySelector('.currentInterval');
       const progressBar = display.querySelector('.progressBar');
       const clock = document.getElementById('clock');
@@ -57,7 +56,6 @@
         setupTimer(sequence.currentInterval);
         currentRound.textContent = sequence.currentSet;
         roundsTotal.textContent = sequence.numberOfSets;
-        intervalsTotal.textContent = sequence.intervals.length;
 
         progressBar.innerHTML = '';
         for (let i = 0; i < sequence.intervals.length; i++) {
@@ -86,7 +84,6 @@
         t.dataset.duration = interval.duration;
         display.querySelector('.title').textContent = interval.name;
         if (interval.index) {
-          currentInterval.textContent = interval.index + 1;
           setProgress(interval.index);
         }
 
@@ -110,13 +107,13 @@
           seconds;
         function timer() {
 
-          diff = duration - (((Date.now() - start) / 1000) | 0);
+          remaining = duration - (((Date.now() - start) / 1000) | 0);
 
-          display.querySelector('.time').textContent = formatTime(diff);
+          display.querySelector('.time').textContent = formatTime(remaining);
 
 
-          if (diff <= 0) {
-            audio.play();
+          if (remaining <= 0) {
+           // audio.play();
             clearInterval(jsInterval);
             // }
           }
@@ -124,6 +121,7 @@
 
         // we don't want to wait a full second before the timer starts
         timer();
+        clearInterval(jsInterval);
         jsInterval = setInterval(timer, 1000);
         return jsInterval;
 
@@ -152,8 +150,16 @@
 
         document.getElementById('startstop').addEventListener('click', function (e) {
           e.preventDefault();
+          console.log(`fired ${e.target.dataset.action}`);
           if (e.target.dataset.action) {
             socket.emit(`${e.target.dataset.action} timer`);
+            if (e.target.dataset.action == 'pause') {
+              e.target.textContent = 'Resume';
+              e.target.dataset.action = 'resume';
+            } else if (e.target.dataset.action == 'resume') {
+              e.target.textContent = 'Pause';
+              e.target.dataset.action = 'pause';
+            }
           }
         })
       }
@@ -178,6 +184,15 @@
 
       socket.on('timer complete', function (e) {
         display.classList.remove('active');
+      });
+
+      socket.on('pause timer', function(e) {
+        t.dataset.duration = remaining;
+        clearInterval(jsInterval);
+      });
+
+      socket.on('resume timer', function(e) {
+        jsInterval = startTimer();
       });
 
       socket.emit('fetch sequence', 'cirque');

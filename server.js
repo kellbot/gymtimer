@@ -60,9 +60,13 @@ io.on('connection', (socket) => {
         if (!activeTimer) throw new Error(`Timer ${msg} not found`);
         activeTimer.start();
         io.emit('start timer');
-        
+
         activeTimer.on('interval start', (interval) => {
           io.emit('setup interval', interval);
+        });
+
+        activeTimer.on('set start', (msg) => {  
+          io.emit('setup clock', activeTimer);
         });
 
         activeTimer.on('timer complete', (msg) => {
@@ -70,6 +74,15 @@ io.on('connection', (socket) => {
         })
     });
 
+    socket.on('pause timer', (msg) => {
+      activeTimer.pause();
+      io.emit('pause timer');
+    });
+
+    socket.on('resume timer', (msg) => {
+      activeTimer.resume();
+      io.emit('resume timer');
+    });
 
     socket.on('fetch sequence', (timerId) => {
       activeTimer = timers[timerId];

@@ -1,9 +1,9 @@
 const EventEmitter = require('events');
 
 class Sequence extends EventEmitter {
-    
 
-    constructor (saveData, fileId) {
+
+    constructor(saveData, fileId) {
         super();
 
         if (saveData) {
@@ -13,6 +13,7 @@ class Sequence extends EventEmitter {
             this.currentSet = 1;
             this.indexIntervals();
             this.resting = false;
+            this.offset = 0;
 
         } else {
             throw new Error('Initializd empty sequence');
@@ -21,10 +22,12 @@ class Sequence extends EventEmitter {
     }
 
     rest() {
-        this.resting.diff = this.resting.duration - ( ( (Date.now() - this.resting.start) / 1000 ) | 0 );
+        this.resting.diff = this.resting.duration - (((Date.now() - this.offset - this.resting.start) / 1000) | 0);
         console.log(this.resting.diff);
         if (this.resting.diff <= 0) {
+            this.resting = false;
             clearInterval(this.jsInterval);
+            this.offset = 0;
             // start next interval
             console.log(`starting interval ${this.currentInterval.index + 1}`);
             this.start();
@@ -33,11 +36,12 @@ class Sequence extends EventEmitter {
     }
 
     timer() {
-        this.currentInterval.diff = this.currentInterval.duration - (((Date.now() - this.currentInterval.start) / 1000) | 0);
+        this.currentInterval.diff = this.currentInterval.duration - (((Date.now() - this.offset - this.currentInterval.start) / 1000) | 0);
         console.log(this.currentInterval.diff);
 
-        if (this.currentInterval.diff <= 0) {          
+        if (this.currentInterval.diff <= 0) {
             clearInterval(this.jsInterval);
+            this.offset = 0;
 
             // If there is another interval
             if (this.nextInterval()) {
@@ -46,20 +50,21 @@ class Sequence extends EventEmitter {
                 this.resting.start = Date.now() + 1000;
                 this.rest();
                 this.emit('interval start', this.resting);
-                
+
                 this.jsInterval = setInterval(this.rest.bind(this), 1000);
 
-            // if not we look for the next round    
+                // if not we look for the next round    
             } else if (this.currentSet < this.numberOfSets) {
-                    this.currentSet++;
-                    this.currentInterval = this.firstInterval();
-                    this.resting = this.setRest;
-                    this.resting.start = Date.now() + 1000;
-                    this.rest();
-                    this.emit('interval start', this.resting);
-                
-                    this.jsInterval = setInterval(this.rest.bind(this), 1000);
-                
+                this.currentSet++;
+                this.currentInterval = this.firstInterval();
+                this.resting = this.setRest;
+                this.resting.start = Date.now() + 1000;
+                this.rest();
+                this.emit('set start');
+                this.emit('interval start', this.resting);
+
+                this.jsInterval = setInterval(this.rest.bind(this), 1000);
+
             } else {
                 //It's over!
                 this.emit('timer complete');
@@ -71,7 +76,7 @@ class Sequence extends EventEmitter {
 
     // Gives each interval an index for easy reference
     indexIntervals() {
-        for ( let i = 0; i < this.intervals.length; i++) {
+        for (let i = 0; i < this.intervals.length; i++) {
             this.intervals[i].index = i;
         }
     }
@@ -106,6 +111,19 @@ class Sequence extends EventEmitter {
         this.timer();
         this.jsInterval = setInterval(this.timer.bind(this), 1000);
 
+    }
+    pause() {
+        clearInterval(this.jsInterval);
+        this.pauseTime = Date.now();
+    }
+
+    resume() {
+        this.offset = this.offset + (Date.now() - this.pauseTime);
+        if (this.resting) {
+            this.jsInterval = setInterval(this.rest.bind(this), 1000);
+        } else {
+            this.jsInterval = setInterval(this.timer.bind(this), 1000);
+        }
     }
 }
 

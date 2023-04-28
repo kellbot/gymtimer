@@ -6,4 +6,4 @@ Synchronized timer across multiple devices
 
 ## Colors
 
-0: 	`#RRGGBB`
+0: 	`#323232`

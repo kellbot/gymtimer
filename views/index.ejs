@@ -9,12 +9,15 @@
   <link rel="stylesheet" href="/css/index.css" />
 </head>
 
-<body>
+<body <%- (typeof controls !='undefined' && controls) ? 'class="controller"' : '' %>>
   <div id="clock">
     <div class="display">
       <div class="time">00:00</div>
+      <div class="progressBar"></div>
       <div class="round">Round <span class="currentRound">0</span> of <span class="totalRounds">0</span></div>
-      <div><span class="currentInterval">1</span> / <span class="totalIntervals"></span> : <span class="title"></span></div>
+
+      <div><span class="currentInterval">1</span> / <span class="totalIntervals"></span> : <span class="title"></span>
+      </div>
     </div>
   </div>
   <%- (typeof controls !='undefined' && controls) ? include('./partials/presets') : '' %>
@@ -24,37 +27,70 @@
 
       var messages = document.getElementById('messages');
       var presets = document.getElementById('presets');
+      var controls = document.getElementById('controls');
       var input = document.getElementById('input');
       let sequenceId;
       let jsInterval;
       let autostart = false;
-      
+
       var audio = new Audio('longbeep.mp3');
-      
+
       const display = document.querySelector('#clock .display');
-      const t =  display.querySelector('.time');
+      const t = display.querySelector('.time');
       const roundsTotal = display.querySelector('.totalRounds');
       const currentRound = display.querySelector('.currentRound');
       const intervalsTotal = display.querySelector('.totalIntervals');
       const currentInterval = display.querySelector('.currentInterval');
+      const progressBar = display.querySelector('.progressBar');
+      const clock = document.getElementById('clock');
+
+      function setProgress(index) {
+        //  previous current is now past
+        let prev = progressBar.querySelector('.current');
+        prev.classList.remove('current');
+        prev.classList.add('past');
+        progressBar.querySelector(`[data-index="${index}"]`).classList.remove('future');
+        progressBar.querySelector(`[data-index="${index}"]`).classList.add('current');
+      }
 
       function setupClock(sequence) {
-        t.textContent = formatTime(sequence.currentInterval.duration);
-        t.dataset.duration = sequence.currentInterval.duration;
-        display.querySelector('.title').textContent = sequence.currentInterval.name;
+        setupTimer(sequence.currentInterval);
         currentRound.textContent = sequence.currentSet;
         roundsTotal.textContent = sequence.numberOfSets;
         intervalsTotal.textContent = sequence.intervals.length;
+
+        progressBar.innerHTML = '';
+        for (let i = 0; i < sequence.intervals.length; i++) {
+          
+          let progressTick = document.createElement('div');
+          if (i == 0) {
+            progressTick.classList.add('tick', 'current');
+          } else {
+            progressTick.classList.add('tick', 'future');
+          }
+          progressTick.style.width = 100 / sequence.intervals.length + '%';
+          progressTick.dataset.index = i;
+          progressBar.appendChild(progressTick);
+        } 
+
       }
 
       function setupTimer(interval) {
-        const t =  display.querySelector('.time');
+        clock.classList.forEach(className => {
+          if (className.startsWith('color')) {
+            clock.classList.remove(className);
+          }
+        });
+        if (interval.color) clock.classList.add(`color-${interval.color}`);
         t.textContent = formatTime(interval.duration);
         t.dataset.duration = interval.duration;
         display.querySelector('.title').textContent = interval.name;
-        if (interval.index) currentInterval.textContent = interval.index + 1;
+        if (interval.index) {
+          currentInterval.textContent = interval.index + 1;
+          setProgress(interval.index);
+        }
 
-        if (autostart)  {
+        if (autostart) {
           jsInterval = startTimer();
         }
       }
@@ -65,7 +101,7 @@
 
       function startTimer() {
 
-        display.classList.add('active');
+        clock.classList.add('active');
         let duration = t.dataset.duration;
 
         var start = Date.now(),
@@ -81,7 +117,7 @@
 
           if (diff <= 0) {
             audio.play();
-              clearInterval(jsInterval);
+            clearInterval(jsInterval);
             // }
           }
         };
@@ -94,44 +130,45 @@
       }
 
       function formatTime(duration) {
-          // does the same job as parseInt truncates the float
-          minutes = (duration / 60) | 0;
-          seconds = (duration % 60) | 0;
+        // does the same job as parseInt truncates the float
+        minutes = (duration / 60) | 0;
+        seconds = (duration % 60) | 0;
 
-          minutes = minutes < 10 ? "0" + minutes : minutes;
-          seconds = seconds < 10 ? "0" + seconds : seconds;
+        minutes = minutes < 10 ? "0" + minutes : minutes;
+        seconds = seconds < 10 ? "0" + seconds : seconds;
 
-          return minutes + ":" + seconds;
+        return minutes + ":" + seconds;
       }
 
-      presets.addEventListener('click', function (e) {
-        e.preventDefault();
-        if (e.target.dataset.duration) {
-          roundInput = document.querySelector('input[name="rounds"]');
-  //        socket.emit('create timer', { duration: e.target.dataset.duration, rounds: roundInput.value });
-        }
-      });
+      if (controls) {
+        presets.addEventListener('click', function (e) {
+          e.preventDefault();
+          if (e.target.dataset.duration) {
+            roundInput = document.querySelector('input[name="rounds"]');
+            //        socket.emit('create timer', { duration: e.target.dataset.duration, rounds: roundInput.value });
+          }
+        });
+      
 
-      document.getElementById('startstop').addEventListener('click', function (e) {
-        e.preventDefault();
-        if (e.target.dataset.action) {
-          socket.emit(`${e.target.dataset.action} timer`);
-        }
-      })
-
+        document.getElementById('startstop').addEventListener('click', function (e) {
+          e.preventDefault();
+          if (e.target.dataset.action) {
+            socket.emit(`${e.target.dataset.action} timer`);
+          }
+        })
+      }
 
       socket.on('stop timer', function (msg) {
         stopTimer(jsInterval);
       });
 
       socket.on('start timer', function (interval) {
-        
+
         autostart = true;
         jsInterval = startTimer();
       });
 
       socket.on('setup interval', function (interval) {
-        if (interval.color) display.classList.add(`color-${interval.color}`);
         setupTimer(interval);
       });
 

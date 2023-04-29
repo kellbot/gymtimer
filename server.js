@@ -9,7 +9,7 @@ const path = require('path');
 const { Sequence } = require('./Sequence');
 
 let timers = [];
-let activeTimer = "bugs";
+let activeTimer = false;
 
 const directoryPath = './timers/';
 fs.readdir(directoryPath, (err, files) => {
@@ -49,11 +49,14 @@ app.get('/controls', (req, res) => {
 
 app.use(express.static('public'));
 
-io.on('connection', (socket) => {
-    console.log('connected');
-});
 
 io.on('connection', (socket) => {
+    if (activeTimer) {
+      console.log('got timer');
+      let timerClone = Object.assign({}, activeTimer);
+      delete timerClone.jsInterval;
+      socket.emit('setup clock', timerClone);
+    }
     socket.on('start timer', (msg) => {
 
         io.emit('stop timer', {});
@@ -85,6 +88,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('fetch sequence', (timerId) => {
+      if (activeTimer) return;
       activeTimer = timers[timerId];
       if (!activeTimer) {
         console.log(`Timer ${timerId} not found`);

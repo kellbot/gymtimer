@@ -53,7 +53,6 @@
       }
 
       function setupClock(sequence) {
-        setupTimer(sequence.currentInterval);
         currentRound.textContent = sequence.currentSet;
         roundsTotal.textContent = sequence.numberOfSets;
 
@@ -70,6 +69,8 @@
           progressTick.dataset.index = i;
           progressBar.appendChild(progressTick);
         } 
+        setupTimer(sequence.currentInterval);
+
 
       }
 
@@ -80,6 +81,10 @@
           }
         });
         if (interval.color) clock.classList.add(`color-${interval.color}`);
+        if(interval.diff) {
+          interval.duration = interval.diff;
+          autostart = true;
+        }
         t.textContent = formatTime(interval.duration);
         t.dataset.duration = interval.duration;
         display.querySelector('.title').textContent = interval.name;

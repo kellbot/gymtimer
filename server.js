@@ -1,10 +1,13 @@
 const express = require('express');
+const fs = require('fs');
 const app = express();
-const http = require('http');
-const server = http.createServer(app);
+const https = require('https');
+const server = https.createServer(    {
+      key: fs.readFileSync("key.pem"),
+      cert: fs.readFileSync("cert.pem"),
+    },app);
 const { Server } = require("socket.io");
 const io = new Server(server);
-const fs = require('fs');
 const path = require('path');
 const { Sequence } = require('./Sequence');
 

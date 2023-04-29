@@ -34,6 +34,7 @@
       let autostart = false;
 
       var audio = new Audio('longbeep.mp3');
+      audio.muted = true;
 
       const display = document.querySelector('#clock .display');
       const t = display.querySelector('.time');
@@ -59,7 +60,7 @@
 
         progressBar.innerHTML = '';
         for (let i = 0; i < sequence.intervals.length; i++) {
-          
+
           let progressTick = document.createElement('div');
           if (i == 0) {
             progressTick.classList.add('tick', 'current');
@@ -69,7 +70,8 @@
           progressTick.style.width = 100 / sequence.intervals.length + '%';
           progressTick.dataset.index = i;
           progressBar.appendChild(progressTick);
-        } 
+          audio.muted = false;
+        }
 
       }
 
@@ -113,17 +115,17 @@
 
 
           if (remaining <= 0) {
-           // audio.play();
+            audio.play();
             clearInterval(jsInterval);
-            // }
           }
-        };
+        }
+      
 
-        // we don't want to wait a full second before the timer starts
-        timer();
-        clearInterval(jsInterval);
-        jsInterval = setInterval(timer, 1000);
-        return jsInterval;
+      // we don't want to wait a full second before the timer starts
+      timer();
+      clearInterval(jsInterval);
+      jsInterval = setInterval(timer, 1000);
+      return jsInterval;
 
       }
 
@@ -146,7 +148,7 @@
             //        socket.emit('create timer', { duration: e.target.dataset.duration, rounds: roundInput.value });
           }
         });
-      
+
 
         document.getElementById('startstop').addEventListener('click', function (e) {
           e.preventDefault();
@@ -186,12 +188,12 @@
         display.classList.remove('active');
       });
 
-      socket.on('pause timer', function(e) {
+      socket.on('pause timer', function (e) {
         t.dataset.duration = remaining;
         clearInterval(jsInterval);
       });
 
-      socket.on('resume timer', function(e) {
+      socket.on('resume timer', function (e) {
         jsInterval = startTimer();
       });
 

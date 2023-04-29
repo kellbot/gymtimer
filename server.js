@@ -2,17 +2,24 @@ const express = require('express');
 const fs = require('fs');
 const app = express();
 const https = require('https');
-const server = https.createServer(    {
-      key: fs.readFileSync("key.pem"),
-      cert: fs.readFileSync("cert.pem"),
-    },app);
+let server;
+if (process.env.NODE_ENV === 'production') {
+  server = https.createServer(    {
+    key: fs.readFileSync("key.pem"),
+    cert: fs.readFileSync("cert.pem"),
+  },app);
+} else {
+  const http = require('http');
+  server = http.createServer(app);
+}
+
 const { Server } = require("socket.io");
 const io = new Server(server);
 const path = require('path');
 const { Sequence } = require('./Sequence');
 
 let timers = [];
-let activeTimer = "bugs";
+let activeTimer = false;
 
 const directoryPath = './timers/';
 fs.readdir(directoryPath, (err, files) => {

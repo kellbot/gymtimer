@@ -77,63 +77,27 @@
       }
 
       function setupTimer(interval) {
+        updateTimer(interval);
         clock.classList.forEach(className => {
-          if (className.startsWith('color')) {
-            clock.classList.remove(className);
-          }
+          if (className.startsWith('color')) clock.classList.remove(className);
         });
         if (interval.color) clock.classList.add(`color-${interval.color}`);
-        if(interval.diff) {
-          interval.duration = interval.diff;
-          autostart = true;
-        }
-        t.textContent = formatTime(interval.duration);
+        
+   
         t.dataset.duration = interval.duration;
         display.querySelector('.title').textContent = interval.name;
         if (interval.index) {
           setProgress(interval.index);
         }
 
-        if (autostart) {
-          jsInterval = startTimer();
-        }
       }
 
-      function stopTimer(jsInterval) {
-        clearInterval(jsInterval);
-      }
+      function updateTimer(interval) {
 
-      function startTimer() {
+          t.textContent = formatTime(interval.diff);
 
-        clock.classList.add('active');
-        let duration = t.dataset.duration;
-
-        var start = Date.now(),
-          diff,
-          minutes,
-          seconds;
-        function timer() {
-
-          remaining = duration - (((Date.now() - start) / 1000) | 0);
-
-          display.querySelector('.time').textContent = formatTime(remaining);
-
-
-          if (remaining <= 0) {
-            audio.play();
-            clearInterval(jsInterval);
-          }
-        }
+     }
       
-
-      // we don't want to wait a full second before the timer starts
-      timer();
-      clearInterval(jsInterval);
-      jsInterval = setInterval(timer, 1000);
-      return jsInterval;
-
-      }
-
       function formatTime(duration) {
         // does the same job as parseInt truncates the float
         minutes = (duration / 60) | 0;
@@ -171,14 +135,12 @@
         })
       }
 
-      socket.on('stop timer', function (msg) {
-        stopTimer(jsInterval);
+      socket.on('tick', function (currentInterval) {
+        updateTimer(currentInterval);
       });
 
-      socket.on('start timer', function (interval) {
-
-        autostart = true;
-        jsInterval = startTimer();
+      socket.on('start timer', function (msg) {
+        clock.classList.add('active');
       });
 
       socket.on('setup interval', function (interval) {
@@ -195,12 +157,8 @@
 
       socket.on('pause timer', function (e) {
         t.dataset.duration = remaining;
-        clearInterval(jsInterval);
       });
 
-      socket.on('resume timer', function (e) {
-        jsInterval = startTimer();
-      });
 
       socket.emit('fetch sequence', 'cirque');
     </script>

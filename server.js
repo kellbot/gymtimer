@@ -62,14 +62,12 @@ app.use(express.static('public'));
 
 io.on('connection', (socket) => {
     if (activeTimer) {
-      console.log('got timer');
       let timerClone = Object.assign({}, activeTimer);
       delete timerClone.jsInterval;
       socket.emit('setup clock', timerClone);
     }
     socket.on('start timer', (msg) => {
 
-        io.emit('stop timer', {});
         if (!activeTimer) throw new Error(`Timer ${msg} not found`);
         activeTimer.start();
         io.emit('start timer');
@@ -85,6 +83,20 @@ io.on('connection', (socket) => {
         activeTimer.on('timer complete', (msg) => {
           io.emit('timer complete');
         })
+
+        function tick() {
+          //jsInterval should only be populated when the timer is running
+          if(activeTimer.jsInterval) {
+            //making these separate things was a bad idea.
+            if (activeTimer.resting) {
+              io.emit('tick', activeTimer.resting);
+            } else {
+              io.emit('tick', activeTimer.currentInterval);
+            }
+          }
+        }
+
+        setInterval(tick, 100);
     });
 
     socket.on('pause timer', (msg) => {

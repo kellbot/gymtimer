@@ -3,12 +3,11 @@ const EventEmitter = require('events');
 class Sequence extends EventEmitter {
 
 
-    constructor(saveData, fileId) {
+    constructor(saveData) {
         super();
 
         if (saveData) {
             Object.assign(this, saveData);
-            this.id = fileId;
             this.currentInterval = this.firstInterval();
             this.currentSet = 1;
             this.indexIntervals();
@@ -45,7 +44,7 @@ class Sequence extends EventEmitter {
             if (this.nextInterval()) {
                 // Rest before next interval
                 this.resting = this.intervalRest;
-                this.resting.start = Date.now() + 1000;
+                this.resting.start = Date.now();
                 this.rest();
                 this.emit('interval start', this.resting);
 
@@ -122,6 +121,14 @@ class Sequence extends EventEmitter {
         } else {
             this.jsInterval = setInterval(this.timer.bind(this), 1000);
         }
+    }
+
+    reset() {
+        clearInterval(this.jsInterval);
+        this.jsInterval = false;
+        this.currentInterval = this.firstInterval();
+        this.currentSet = 1;
+        this.resting = false;
     }
 }
 

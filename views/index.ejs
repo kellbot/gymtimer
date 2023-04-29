@@ -28,7 +28,7 @@
       var presets = document.getElementById('presets');
       var controls = document.getElementById('controls');
       var input = document.getElementById('input');
-  
+
       let remaining;
       let autostart = false;
 
@@ -81,23 +81,23 @@
           if (className.startsWith('color')) clock.classList.remove(className);
         });
         if (interval.color) clock.classList.add(`color-${interval.color}`);
-        
-   
+
+
         t.dataset.duration = interval.duration;
         display.querySelector('.title').textContent = interval.name;
         if (interval.index) {
           setProgress(interval.index);
         }
-        if(interval.diff > 0) clock.classList.add('active');
+        if (interval.diff > 0) clock.classList.add('active');
 
       }
 
       function updateTimer(interval) {
 
-          t.textContent = formatTime(interval.diff);
+        t.textContent = formatTime(interval.diff);
 
-     }
-      
+      }
+
       function formatTime(duration) {
         // does the same job as parseInt truncates the float
         minutes = (duration / 60) | 0;
@@ -114,23 +114,51 @@
           e.preventDefault();
           if (e.target.dataset.duration) {
             roundInput = document.querySelector('input[name="rounds"]');
-            //        socket.emit('create timer', { duration: e.target.dataset.duration, rounds: roundInput.value });
+            let sequence = {
+              numberOfSets: roundInput.value,
+              intervals: [
+                {
+                  duration: e.target.dataset.duration,
+                  color: 2,
+                  name: ''
+                }
+              ],
+              intervalRest: {
+                name: "Rest",
+                duration: 0,
+                color: 1,
+                rest: true
+              },
+              setRest: {
+                name: "Rest",
+                duration: 0,
+                color: 1,
+                rest: true
+              },
+            }
+            
+          socket.emit('set sequence', sequence);
           }
         });
 
 
         document.getElementById('startstop').addEventListener('click', function (e) {
           e.preventDefault();
-          console.log(`fired ${e.target.dataset.action}`);
-          if (e.target.dataset.action) {
-            socket.emit(`${e.target.dataset.action} timer`);
-            if (e.target.dataset.action == 'pause') {
+          let action = e.target.dataset.action;
+          if (action) {
+            socket.emit(`${action} timer`);
+            if (action == 'pause') {
               e.target.textContent = 'Resume';
               e.target.dataset.action = 'resume';
-            } else if (e.target.dataset.action == 'resume') {
+            } else if (action == 'start') {
               e.target.textContent = 'Pause';
               e.target.dataset.action = 'pause';
             }
+
+          } else if (e.target.dataset.action == 'resume') {
+            e.target.textContent = 'Pause';
+            e.target.dataset.action = 'pause';
+
           }
         })
       }

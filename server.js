@@ -37,7 +37,7 @@ fs.readdir(directoryPath, (err, files) => {
       }
       const ext = path.extname(file);
       const sinext = path.basename(file, ext);
-      timers[sinext] = new Sequence(JSON.parse(data), file);
+      timers[sinext] = new Sequence(JSON.parse(data));
 
     })
   })
@@ -108,6 +108,17 @@ io.on('connection', (socket) => {
       activeTimer.resume();
       io.emit('resume timer');
     });
+
+    socket.on('reset', (msg) => {
+      activeTimer.reset();
+      io.emit('setup clock', activeTimer);
+       
+    });
+
+    socket.on('set sequence', (sequence) => {
+      activeTimer = new Sequence(sequence);
+      io.emit('setup clock', activeTimer);
+    })
 
     socket.on('fetch sequence', (timerId) => {
       if (activeTimer) return;

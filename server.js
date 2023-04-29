@@ -1,10 +1,20 @@
 const express = require('express');
+const fs = require('fs');
 const app = express();
-const http = require('http');
-const server = http.createServer(app);
+const https = require('https');
+let server;
+if (process.env.NODE_ENV === 'production') {
+  server = https.createServer(    {
+    key: fs.readFileSync("keys/key.pem"),
+    cert: fs.readFileSync("keys/cert.pem"),
+  },app);
+} else {
+  const http = require('http');
+  server = http.createServer(app);
+}
+
 const { Server } = require("socket.io");
 const io = new Server(server);
-const fs = require('fs');
 const path = require('path');
 const { Sequence } = require('./Sequence');
 

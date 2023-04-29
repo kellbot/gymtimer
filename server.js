@@ -5,8 +5,8 @@ const https = require('https');
 let server;
 if (process.env.NODE_ENV === 'production') {
   server = https.createServer(    {
-    key: fs.readFileSync("key.pem"),
-    cert: fs.readFileSync("cert.pem"),
+    key: fs.readFileSync("keys/key.pem"),
+    cert: fs.readFileSync("keys/cert.pem"),
   },app);
 } else {
   const http = require('http');

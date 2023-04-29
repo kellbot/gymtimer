@@ -28,8 +28,7 @@
       var presets = document.getElementById('presets');
       var controls = document.getElementById('controls');
       var input = document.getElementById('input');
-      let sequenceId;
-      let jsInterval;
+  
       let remaining;
       let autostart = false;
 
@@ -89,6 +88,7 @@
         if (interval.index) {
           setProgress(interval.index);
         }
+        if(interval.diff > 0) clock.classList.add('active');
 
       }
 

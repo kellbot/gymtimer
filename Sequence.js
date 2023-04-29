@@ -28,8 +28,6 @@ class Sequence extends EventEmitter {
             this.resting = false;
             clearInterval(this.jsInterval);
             this.offset = 0;
-            // start next interval
-            console.log(`starting interval ${this.currentInterval.index + 1}`);
             this.start();
         }
 

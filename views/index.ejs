@@ -54,7 +54,11 @@
       }
 
       function setupClock(sequence) {
-        setupTimer(sequence.currentInterval);
+        if (!sequence.currentInterval) {
+          setupTimer(sequence.intervals[0])
+        } else {
+          setupTimer(sequence.currentInterval);
+        }
         currentRound.textContent = sequence.currentSet;
         roundsTotal.textContent = sequence.numberOfSets;
 

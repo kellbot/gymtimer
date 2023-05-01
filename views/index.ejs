@@ -28,8 +28,7 @@
       var presets = document.getElementById('presets');
       var controls = document.getElementById('controls');
       var input = document.getElementById('input');
-      let sequenceId;
-      let jsInterval;
+
       let remaining;
       let autostart = false;
 
@@ -76,60 +75,31 @@
           progressBar.appendChild(progressTick);
           audio.muted = false;
         }
+        setupTimer(sequence.currentInterval);
+
 
       }
 
       function setupTimer(interval) {
+        updateTimer(interval);
         clock.classList.forEach(className => {
-          if (className.startsWith('color')) {
-            clock.classList.remove(className);
-          }
+          if (className.startsWith('color')) clock.classList.remove(className);
         });
         if (interval.color) clock.classList.add(`color-${interval.color}`);
-        t.textContent = formatTime(interval.duration);
+
+
         t.dataset.duration = interval.duration;
         display.querySelector('.title').textContent = interval.name;
         if (interval.index) {
           setProgress(interval.index);
         }
+        if (interval.diff > 0) clock.classList.add('active');
 
-        if (autostart) {
-          jsInterval = startTimer();
-        }
       }
 
-      function stopTimer(jsInterval) {
-        clearInterval(jsInterval);
-      }
+      function updateTimer(interval) {
 
-      function startTimer() {
-
-        clock.classList.add('active');
-        let duration = t.dataset.duration;
-
-        var start = Date.now(),
-          diff,
-          minutes,
-          seconds;
-        function timer() {
-
-          remaining = duration - (((Date.now() - start) / 1000) | 0);
-
-          display.querySelector('.time').textContent = formatTime(remaining);
-
-
-          if (remaining <= 0) {
-            audio.play();
-            clearInterval(jsInterval);
-          }
-        }
-      
-
-      // we don't want to wait a full second before the timer starts
-      timer();
-      clearInterval(jsInterval);
-      jsInterval = setInterval(timer, 1000);
-      return jsInterval;
+        t.textContent = formatTime(interval.diff);
 
       }
 
@@ -149,35 +119,61 @@
           e.preventDefault();
           if (e.target.dataset.duration) {
             roundInput = document.querySelector('input[name="rounds"]');
-            //        socket.emit('create timer', { duration: e.target.dataset.duration, rounds: roundInput.value });
+            let sequence = {
+              numberOfSets: roundInput.value,
+              intervals: [
+                {
+                  duration: e.target.dataset.duration,
+                  color: 2,
+                  name: ''
+                }
+              ],
+              intervalRest: {
+                name: "Rest",
+                duration: 0,
+                color: 1,
+                rest: true
+              },
+              setRest: {
+                name: "Rest",
+                duration: 0,
+                color: 1,
+                rest: true
+              },
+            }
+            
+          socket.emit('set sequence', sequence);
           }
         });
 
 
         document.getElementById('startstop').addEventListener('click', function (e) {
           e.preventDefault();
-          console.log(`fired ${e.target.dataset.action}`);
-          if (e.target.dataset.action) {
-            socket.emit(`${e.target.dataset.action} timer`);
-            if (e.target.dataset.action == 'pause') {
+          let action = e.target.dataset.action;
+          if (action) {
+            socket.emit(`${action} timer`);
+            if (action == 'pause') {
               e.target.textContent = 'Resume';
               e.target.dataset.action = 'resume';
-            } else if (e.target.dataset.action == 'resume') {
+            } else if (action == 'start') {
               e.target.textContent = 'Pause';
               e.target.dataset.action = 'pause';
             }
+
+          } else if (e.target.dataset.action == 'resume') {
+            e.target.textContent = 'Pause';
+            e.target.dataset.action = 'pause';
+
           }
         })
       }
 
-      socket.on('stop timer', function (msg) {
-        stopTimer(jsInterval);
+      socket.on('tick', function (currentInterval) {
+        updateTimer(currentInterval);
       });
 
-      socket.on('start timer', function (interval) {
-
-        autostart = true;
-        jsInterval = startTimer();
+      socket.on('start timer', function (msg) {
+        clock.classList.add('active');
       });
 
       socket.on('setup interval', function (interval) {
@@ -194,12 +190,8 @@
 
       socket.on('pause timer', function (e) {
         t.dataset.duration = remaining;
-        clearInterval(jsInterval);
       });
 
-      socket.on('resume timer', function (e) {
-        jsInterval = startTimer();
-      });
 
       socket.emit('fetch sequence', 'cirque');
     </script>

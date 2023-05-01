@@ -15,7 +15,7 @@
             "type": "chrome",
             "request": "launch",
             "name": "Chrome Client",
-            "url": "http://localhost:3000",
+            "url": "http://localhost:3000/controls",
             "webRoot": "${workspaceFolder}"
         },
         {

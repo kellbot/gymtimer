@@ -19,6 +19,11 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Ro
 .controller #clock {
     height: 50vh; 
 }
+.controller  .display{
+    font-size: 12vw;
+
+} 
+
 
 #clock > .display {
     width: 75%;
@@ -39,9 +44,9 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Ro
     width: 100vw;
     text-align: center;
     background-color: rgba(0,0,0,0.25);
-    
+    box-sizing: border-box;
     padding: 0 0.25rem;
-    height: 7vh;
+    padding-bottom: 3vh;
     padding-top: 3vh;
     font-size: 3vh;
     position: absolute;

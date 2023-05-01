@@ -5,8 +5,8 @@ const https = require('https');
 let server;
 if (process.env.NODE_ENV === 'production') {
   server = https.createServer(    {
-    key: fs.readFileSync("key.pem"),
-    cert: fs.readFileSync("cert.pem"),
+    key: fs.readFileSync("keys/key.pem"),
+    cert: fs.readFileSync("keys/cert.pem"),
   },app);
 } else {
   const http = require('http');
@@ -37,7 +37,7 @@ fs.readdir(directoryPath, (err, files) => {
       }
       const ext = path.extname(file);
       const sinext = path.basename(file, ext);
-      timers[sinext] = new Sequence(JSON.parse(data), file);
+      timers[sinext] = new Sequence(JSON.parse(data));
 
     })
   })
@@ -59,14 +59,15 @@ app.get('/controls', (req, res) => {
 
 app.use(express.static('public'));
 
-io.on('connection', (socket) => {
-    console.log('connected');
-});
 
 io.on('connection', (socket) => {
+    if (activeTimer) {
+      let timerClone = Object.assign({}, activeTimer);
+      delete timerClone.jsInterval;
+      socket.emit('setup clock', timerClone);
+    }
     socket.on('start timer', (msg) => {
 
-        io.emit('stop timer', {});
         if (!activeTimer) throw new Error(`Timer ${msg} not found`);
         activeTimer.start();
         io.emit('start timer');
@@ -82,6 +83,20 @@ io.on('connection', (socket) => {
         activeTimer.on('timer complete', (msg) => {
           io.emit('timer complete');
         })
+
+        function tick() {
+          //jsInterval should only be populated when the timer is running
+          if(activeTimer.jsInterval) {
+            //making these separate things was a bad idea.
+            if (activeTimer.resting) {
+              io.emit('tick', activeTimer.resting);
+            } else {
+              io.emit('tick', activeTimer.currentInterval);
+            }
+          }
+        }
+
+        setInterval(tick, 100);
     });
 
     socket.on('pause timer', (msg) => {
@@ -94,7 +109,19 @@ io.on('connection', (socket) => {
       io.emit('resume timer');
     });
 
+    socket.on('reset', (msg) => {
+      activeTimer.reset();
+      io.emit('setup clock', activeTimer);
+       
+    });
+
+    socket.on('set sequence', (sequence) => {
+      activeTimer = new Sequence(sequence);
+      io.emit('setup clock', activeTimer);
+    })
+
     socket.on('fetch sequence', (timerId) => {
+      if (activeTimer) return;
       activeTimer = timers[timerId];
       if (!activeTimer) {
         console.log(`Timer ${timerId} not found`);

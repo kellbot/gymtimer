@@ -21,8 +21,8 @@ class Sequence extends EventEmitter {
     }
 
     rest() {
+        if(!this.resting) return;
         this.resting.diff = this.resting.duration - (((Date.now() - this.offset - this.resting.start) / 1000) | 0);
-        console.log(this.resting.diff);
         if (this.resting.diff <= 0) {
             this.resting = false;
             clearInterval(this.jsInterval);
@@ -51,16 +51,25 @@ class Sequence extends EventEmitter {
                 this.jsInterval = setInterval(this.rest.bind(this), 1000);
 
                 // if not we look for the next round    
+
             } else if (this.currentSet < this.numberOfSets) {
+                this.emit('set start');
                 this.currentSet++;
                 this.currentInterval = this.firstInterval();
-                this.resting = this.setRest;
-                this.resting.start = Date.now() + 1000;
-                this.rest();
-                this.emit('set start');
-                this.emit('interval start', this.resting);
+                if (this.setRest.duration > 0 ) {
 
-                this.jsInterval = setInterval(this.rest.bind(this), 1000);
+                    this.resting = this.setRest;
+                    this.resting.start = Date.now();
+                    this.rest();
+
+                    this.emit('interval start', this.resting);
+                    this.jsInterval = setInterval(this.rest.bind(this), 1000);
+
+                } else {
+                    clearInterval(this.jsInterval);
+                    this.offset = 0;
+                    this.start();
+                }
 
             } else {
                 //It's over!

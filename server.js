@@ -109,13 +109,14 @@ io.on('connection', (socket) => {
       io.emit('resume timer');
     });
 
-    socket.on('reset', (msg) => {
+    socket.on('reset timer', (msg) => {
       activeTimer.reset();
       io.emit('setup clock', activeTimer);
        
     });
 
     socket.on('set sequence', (sequence) => {
+      activeTimer.reset();
       activeTimer = new Sequence(sequence);
       io.emit('setup clock', activeTimer);
     })

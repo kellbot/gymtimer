@@ -81,7 +81,7 @@
     "intervalRest": {
         "identifier": "476f671c-6570-4946-937e-aa17df116a69",
         "name": "Rest",
-        "duration": 0,
+        "duration": 5,
         "color": 1,
         "vibration": true,
         "split": false,

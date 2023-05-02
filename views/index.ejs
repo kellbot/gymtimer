@@ -98,8 +98,9 @@
       }
 
       function updateTimer(interval) {
-
+        if(interval.diff <= 0) audio.play();
         t.textContent = formatTime(interval.diff);
+        
 
       }
 
@@ -120,14 +121,7 @@
           if (e.target.dataset.duration) {
             roundInput = document.querySelector('input[name="rounds"]');
             let sequence = {
-              numberOfSets: roundInput.value,
-              intervals: [
-                {
-                  duration: e.target.dataset.duration,
-                  color: 2,
-                  name: ''
-                }
-              ],
+              numberOfSets: 1,
               intervalRest: {
                 name: "Rest",
                 duration: 0,
@@ -140,6 +134,18 @@
                 color: 1,
                 rest: true
               },
+              intervals: []
+            }
+
+            let interval = 
+            {
+              duration: e.target.dataset.duration,
+              color: 2,
+              name: ''
+            }
+
+            for (let i = 0; i < roundInput.value; i++) {
+              sequence.intervals.push(interval);      
             }
             
           socket.emit('set sequence', sequence);

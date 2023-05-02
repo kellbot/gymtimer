@@ -13,21 +13,8 @@ class Sequence extends EventEmitter {
             this.indexIntervals();
             this.resting = false;
             this.offset = 0;
-
         } else {
             throw new Error('Initializd empty sequence');
-        }
-
-    }
-
-    rest() {
-        if(!this.resting) return;
-        this.resting.diff = this.resting.duration - (((Date.now() - this.offset - this.resting.start) / 1000) | 0);
-        if (this.resting.diff <= 0) {
-            this.resting = false;
-            clearInterval(this.jsInterval);
-            this.offset = 0;
-            this.start();
         }
 
     }
@@ -39,37 +26,11 @@ class Sequence extends EventEmitter {
         if (this.currentInterval.diff <= 0) {
             clearInterval(this.jsInterval);
             this.offset = 0;
+            let index = this.currentInterval.index;
 
-            // If there is another interval
+            // Are there more intervals?
             if (this.nextInterval()) {
-                // Rest before next interval
-                this.resting = this.intervalRest;
-                this.resting.start = Date.now();
-                this.rest();
-                this.emit('interval start', this.resting);
-
-                this.jsInterval = setInterval(this.rest.bind(this), 1000);
-
-                // if not we look for the next round    
-
-            } else if (this.currentSet < this.numberOfSets) {
-                this.emit('set start');
-                this.currentSet++;
-                this.currentInterval = this.firstInterval();
-                if (this.setRest.duration > 0 ) {
-
-                    this.resting = this.setRest;
-                    this.resting.start = Date.now();
-                    this.rest();
-
-                    this.emit('interval start', this.resting);
-                    this.jsInterval = setInterval(this.rest.bind(this), 1000);
-
-                } else {
-                    clearInterval(this.jsInterval);
-                    this.offset = 0;
-                    this.start();
-                }
+                this.start();
 
             } else {
                 //It's over!
@@ -80,6 +41,7 @@ class Sequence extends EventEmitter {
         }
     }
 
+  
     // Gives each interval an index for easy reference
     indexIntervals() {
         for (let i = 0; i < this.intervals.length; i++) {
@@ -93,8 +55,18 @@ class Sequence extends EventEmitter {
 
     nextInterval() {
         let index = this.currentInterval.index;
-        if (index < this.intervals.length - 1) {
+        // Is the next interval a rest?
+        if (this.getRestInterval()) {
+
+            this.currentInterval = this.getRestInterval();
+            this.currentInterval.index = index;
+        // are there are more intervals in this set?
+        } else if (index < this.intervals.length - 1) {
             this.currentInterval = this.intervals[index + 1]
+        // is there another set?
+        } else if (this.currentSet < this.numberOfSets) {
+            this.currentSet++;
+            this.currentInterval = this.firstInterval();
         } else {
             this.currentInterval = false;
         }
@@ -105,6 +77,27 @@ class Sequence extends EventEmitter {
         return this.diff;
     }
 
+    // Fetch the appropriate rest interval
+    getRestInterval(){
+        // don't rest if we're already resting
+        if (this.currentInterval.rest) return false;
+        let isLastInterval = (this.currentInterval.index >= this.intervals.length - 1);
+        // last interval of last set, no rest
+        if (isLastInterval && this.currentSet >= this.numberOfSets) {
+            return false;
+        } 
+
+        // which interval do we want?
+        let rest = isLastInterval ? this.setRest : this.intervalRest;
+
+        if (rest.duration > 0) {
+            return rest;
+        } else {
+            return false;
+        }
+       
+    }
+
     start() {
         if (!this.currentInterval) {
             console.log('no active interval');
@@ -113,6 +106,7 @@ class Sequence extends EventEmitter {
         if (!this.currentInterval.duration) throw new Error('Interval has no duration');
 
         this.currentInterval.start = Date.now();
+        if (this.currentInterval.index == 0) this.emit('set start');
         this.emit('interval start', this.currentInterval);
         this.timer();
         this.jsInterval = setInterval(this.timer.bind(this), 1000);

@@ -120,17 +120,21 @@
           e.preventDefault();
           if (e.target.dataset.duration) {
             roundInput = document.querySelector('input[name="rounds"]');
+            setsInput = document.querySelector('input[name="sets"]');
+            roundRestInput = document.querySelector('input[name="roundRest"]');
+            setRestInput = document.querySelector('input[name="setRest"]');
+
             let sequence = {
-              numberOfSets: 1,
+              numberOfSets: setsInput.value,
               intervalRest: {
                 name: "Rest",
-                duration: 0,
+                duration: roundRestInput.value,
                 color: 1,
                 rest: true
               },
               setRest: {
                 name: "Rest",
-                duration: 0,
+                duration: setRestInput.value,
                 color: 1,
                 rest: true
               },
@@ -167,6 +171,9 @@
             } else if (e.target.dataset.action == 'resume') {
               e.target.textContent = 'Pause';
               e.target.dataset.action = 'pause';
+            } else if (e.target.dataset.action == 'reset') {
+              document.getElementById('timerControl').textContent = 'Start';
+              document.getElementById('timerControl').dataset.action = 'start';
             }
           }
         })

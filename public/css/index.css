@@ -17,12 +17,19 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Ro
 }
 
 .controller #clock {
-    height: 50vh; 
+    height: auto; 
 }
 .controller  .display{
     font-size: 12vw;
 
 } 
+
+.controller  .display .time { 
+  font-size: 5rem;
+  font-family: 'PT Mono', monospace;
+
+}
+
 
 
 #clock > .display {
@@ -63,7 +70,7 @@ body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Ro
 .progressBar { display: flex; }
 
 #controls { 
-    padding: 0 1rem;
+    padding: 1rem;
     margin:auto;
     max-width: 66%;
 }
@@ -225,4 +232,7 @@ button {
     .display .time { 
         font-size: 32vw;
     }
+    .controller #clock {
+      height: 25vh; 
+  }
   }

@@ -68,7 +68,10 @@ io.on('connection', (socket) => {
     }
     socket.on('start timer', (msg) => {
 
-        if (!activeTimer) throw new Error(`Timer ${msg} not found`);
+        if (!activeTimer) {
+          console.log(`Timer ${msg} not found`);
+          return;
+        }
         activeTimer.start();
         io.emit('start timer');
 
@@ -100,23 +103,26 @@ io.on('connection', (socket) => {
     });
 
     socket.on('pause timer', (msg) => {
+      if(!activeTimer) return;
       activeTimer.pause();
       io.emit('pause timer');
     });
 
     socket.on('resume timer', (msg) => {
+      if(!activeTimer) return;
       activeTimer.resume();
       io.emit('resume timer');
     });
 
     socket.on('reset timer', (msg) => {
+      if(!activeTimer) return;
       activeTimer.reset();
       io.emit('setup clock', activeTimer);
        
     });
 
     socket.on('set sequence', (sequence) => {
-      activeTimer.reset();
+      if (activeTimer) activeTimer.reset();
       activeTimer = new Sequence(sequence);
       io.emit('setup clock', activeTimer);
     })

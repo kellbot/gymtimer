@@ -79,6 +79,8 @@
           audio.muted = false;
         }
         setupTimer(sequence.currentInterval);
+        document.getElementById('timerControl').textContent = 'Start';
+        document.getElementById('timerControl').dataset.action = 'start';
 
 
       }
@@ -122,7 +124,7 @@
         presets.addEventListener('click', function (e) {
           e.preventDefault();
           if (e.target.dataset.file) {
-            console.log(e.target.dataset.file);
+            socket.emit('pause timer');
             socket.emit('fetch sequence', e.target.dataset.file);
           }
         });

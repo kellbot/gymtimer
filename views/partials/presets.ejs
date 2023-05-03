@@ -10,7 +10,7 @@
     <button data-file="cirque">Cirque-It Fitness</button>
     <button data-file="testing">Testing</button>
   </div>
-  <div id="newTimers">>
+  <div id="newTimers">
 
     <h2>Create Timer</h2>
     
@@ -97,7 +97,7 @@
         if (i == 0) anchor = 'start';
         if (i == 12) anchor = 'end';
         %>
-        <text class="range__point" x="<%= 100/12 * i %>%" y="14" style="text-anchor: <%=anchor%>" text-anchor="<%=anchor%>>"><%= i * 5 %></text>
+        <text class="range__point" x="<%= 100/12 * i %>%" y="14" style="text-anchor: <%= anchor %>" text-anchor="<%=anchor%>>"><%= i * 5 %></text>
       <% } %>
 
       </svg>

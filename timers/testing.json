@@ -6,48 +6,8 @@
     "vibration": true,
     "intervals": [
         {
-            "name": "Station 1",
-            "duration": 45,
-            "color": 2,
-            "vibration": true,
-            "split": false,
-            "halfwayAlert": true,
-            "count": ""
-        },        {
-            "name": "Station 2",
-            "duration": 45,
-            "color": 2,
-            "vibration": true,
-            "split": false,
-            "halfwayAlert": true,
-            "count": ""
-        },        {
-            "name": "Station 3",
-            "duration": 45,
-            "color": 2,
-            "vibration": true,
-            "split": false,
-            "halfwayAlert": true,
-            "count": ""
-        },        {
-            "name": "Station 4",
-            "duration": 45,
-            "color": 2,
-            "vibration": true,
-            "split": false,
-            "halfwayAlert": true,
-            "count": ""
-        },        {
-            "name": "Station 5",
-            "duration": 45,
-            "color": 2,
-            "vibration": true,
-            "split": false,
-            "halfwayAlert": true,
-            "count": ""
-        },        {
-            "name": "Station 6",
-            "duration": 45,
+            "name": "Exercise 1",
+            "duration": 15,
             "color": 2,
             "vibration": true,
             "split": false,
@@ -55,8 +15,8 @@
             "count": ""
         },
         {
-            "name": "Station 7",
-            "duration": 45,
+            "name": "Exercise 2",
+            "duration": 15,
             "color": 2,
             "vibration": true,
             "split": false,
@@ -64,8 +24,53 @@
             "count": ""
         },
         {
-            "name": "Station 8",
-            "duration": 45,
+            "name": "Exercise 3",
+            "duration": 15,
+            "color": 2,
+            "vibration": true,
+            "split": false,
+            "halfwayAlert": true,
+            "count": ""
+        },
+        {
+            "name": "Exercise 4",
+            "duration": 15,
+            "color": 2,
+            "vibration": true,
+            "split": false,
+            "halfwayAlert": true,
+            "count": ""
+        },
+        {
+            "name": "Exercise 5",
+            "duration": 15,
+            "color": 2,
+            "vibration": true,
+            "split": false,
+            "halfwayAlert": true,
+            "count": ""
+        },
+        {
+            "name": "Exercise 6",
+            "duration": 15,
+            "color": 2,
+            "vibration": true,
+            "split": false,
+            "halfwayAlert": true,
+            "count": ""
+        },
+        {
+            "name": "Exercise 7",
+            "duration": 15,
+            "color": 2,
+            "vibration": true,
+            "split": false,
+            "halfwayAlert": true,
+            "count": ""
+        },
+        {
+            "name": "Exercise 8",
+            "duration": 15,
             "color": 2,
             "vibration": true,
             "split": false,
@@ -76,7 +81,7 @@
     "intervalRest": {
         "identifier": "476f671c-6570-4946-937e-aa17df116a69",
         "name": "Rest",
-        "duration": 15,
+        "duration": 5,
         "color": 1,
         "vibration": true,
         "split": false,
@@ -87,7 +92,7 @@
     "setRest": {
         "identifier": "46e7609c-ecc1-46fd-8fcc-639eaa5e2575",
         "name": "Rest",
-        "duration": 60,
+        "duration": 30,
         "color": 1,
         "vibration": true,
         "split": false,

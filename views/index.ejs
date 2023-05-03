@@ -14,10 +14,11 @@
     <div class="display">
       <div class="time">00:00</div>
       <div class="progressBar"></div>
-      <div class="round">Round <span class="currentRound">0</span> of <span class="totalRounds">0</span></div>
 
       <div class="title"> </div>
     </div>
+    <div class="round">Round <span class="currentRound">0</span> of <span class="totalRounds">0</span></div>
+
   </div>
   <%- (typeof controls !='undefined' && controls) ? include('./partials/presets') : '' %>
     <script src="/socket.io/socket.io.js"></script>
@@ -26,6 +27,7 @@
 
       var messages = document.getElementById('messages');
       var presets = document.getElementById('presets');
+      var newTimers = document.getElementById('newTimers');
       var controls = document.getElementById('controls');
       var input = document.getElementById('input');
 
@@ -36,12 +38,13 @@
       audio.muted = true;
 
       const display = document.querySelector('#clock .display');
-      const t = display.querySelector('.time');
-      const roundsTotal = display.querySelector('.totalRounds');
-      const currentRound = display.querySelector('.currentRound');
-      const currentInterval = display.querySelector('.currentInterval');
-      const progressBar = display.querySelector('.progressBar');
       const clock = document.getElementById('clock');
+      const t = clock.querySelector('.time');
+      const roundsTotal = clock.querySelector('.totalRounds');
+      const currentRound = clock.querySelector('.currentRound');
+      const currentInterval = clock.querySelector('.currentInterval');
+      const progressBar = clock.querySelector('.progressBar');
+
 
       function setProgress(index) {
         //  previous current is now past
@@ -117,6 +120,14 @@
 
       if (controls) {
         presets.addEventListener('click', function (e) {
+          e.preventDefault();
+          if (e.target.dataset.file) {
+            console.log(e.target.dataset.file);
+            socket.emit('fetch sequence', e.target.dataset.file);
+          }
+        });
+
+        newTimers.addEventListener('click', function (e) {
           e.preventDefault();
           if (e.target.dataset.duration) {
             roundInput = document.querySelector('input[name="rounds"]');
@@ -202,9 +213,6 @@
       socket.on('pause timer', function (e) {
         t.dataset.duration = remaining;
       });
-
-
-      socket.emit('fetch sequence', 'cirque');
     </script>
 </body>
 

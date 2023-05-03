@@ -122,13 +122,12 @@ io.on('connection', (socket) => {
     })
 
     socket.on('fetch sequence', (timerId) => {
-      if (activeTimer) return;
       activeTimer = timers[timerId];
       if (!activeTimer) {
         console.log(`Timer ${timerId} not found`);
         return;
       }
-
+      console.log('Timer set: ' + timerId);
       io.emit('setup clock', activeTimer);
     
     });
